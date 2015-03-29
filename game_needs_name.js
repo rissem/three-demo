@@ -4,14 +4,11 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeig
 var listener = new THREE.AudioListener();
 
 var renderer = new THREE.WebGLRenderer();
+
 renderer.setSize( window.innerWidth, window.innerHeight );
-
-var domEvents  = new THREEx.DomEvents(camera, renderer.domElement);
-
 document.body.appendChild( renderer.domElement );
 
-
-
+var domEvents  = new THREEx.DomEvents(camera, renderer.domElement);
 
 Leap.loop(function(frame) {
   frame.hands.forEach(function(hand, index) {
