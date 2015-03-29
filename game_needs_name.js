@@ -63,6 +63,10 @@ setInterval(function(){
       'click',
       function() {
         self.goBoom(cube)
+        loc = cubes.indexOf(cube)
+        cubes.splice(loc, 1)
+
+        //THEN REMOVE IT FROM THE SCENE, IDK HOW
       },
       false)
 
