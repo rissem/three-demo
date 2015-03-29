@@ -1,5 +1,6 @@
 
 var scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0, -10, 80)
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
 var renderer = new THREE.WebGLRenderer();
@@ -15,11 +16,14 @@ Leap.loop(function(frame) {
 
 var cubes = [];
 
-function newCurve() {
+function newCurve(start, end) {
   return new THREE.QuadraticBezierCurve3(
-    new THREE.Vector3( -4.0, -3, 0 ),  //change this start point to the tip of the gun
+
+    // new THREE.Vector3( -4.0, -3, 0 ),  //change this start point to the tip of the gun
+    start,
     new THREE.Vector3( (Math.random() * 20.0) - 10, Math.random() * 20, -20 ),
-    new THREE.Vector3( 4.0, -3, -100 ) // change this to the target position
+    // new THREE.Vector3( 4.0, -3, -100 ) // change this to the target position
+    end
   );
 }
 
@@ -35,7 +39,10 @@ setInterval(function(){
     cube.x = Math.random();
     cube.y = Math.random();
 
-    cube.curve = newCurve();
+    var startPoint = new THREE.Vector3( (Math.random() * 100) - 50, -3, 0 ); //change this start point to the tip of the gun
+    var endPoint = new THREE.Vector3( 4.0, -3, -100 ); // change this to the target position
+
+    cube.curve = newCurve(startPoint, endPoint);
     cube.curveLocation = 0;
 
     cubes.push(cube);
