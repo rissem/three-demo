@@ -1,11 +1,14 @@
-
+var superDuper = this;
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+var listener = new THREE.AudioListener();
 
 var renderer = new THREE.WebGLRenderer();
+
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+var domEvents  = new THREEx.DomEvents(camera, renderer.domElement);
 
 Leap.loop(function(frame) {
   frame.hands.forEach(function(hand, index) {
@@ -14,6 +17,24 @@ Leap.loop(function(frame) {
 });
 
 var cubes = [];
+
+var pewSound = new THREE.Audio( listener );
+pewSound.load( 'sound/pew.mp3' );
+
+var boomSound = new THREE.Audio( superDuper.listener );
+boomSound.load( 'sound/boom.mp3' );
+
+var goPew = function(mesh) {
+  superDuper.pewSound.play()
+}
+
+var goBoom = function(mesh) {
+  //LAAAAAAAAAAAAME -- Dan
+  if (superDuper.boomSound.isPlaying) {
+    superDuper.boomSound.stop()
+  }
+  superDuper.boomSound.play()
+}
 
 function newCurve() {
   return new THREE.QuadraticBezierCurve3(
@@ -32,8 +53,22 @@ setInterval(function(){
 
     var material = new THREE.MeshBasicMaterial( { color: color } );
     var cube = new THREE.Mesh( geometry, material );
+
     cube.x = Math.random();
     cube.y = Math.random();
+
+    var self = this
+    domEvents.addEventListener(
+      cube,
+      'click',
+      function() {
+        self.goBoom(cube)
+        loc = cubes.indexOf(cube)
+        cubes.splice(loc, 1)
+
+        //THEN REMOVE IT FROM THE SCENE, IDK HOW
+      },
+      false)
 
     cube.curve = newCurve();
     cube.curveLocation = 0;
