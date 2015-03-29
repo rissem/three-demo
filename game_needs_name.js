@@ -1,12 +1,15 @@
-
+var superDuper = this;
 var scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0, -10, 80)
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+var listener = new THREE.AudioListener();
 
 var renderer = new THREE.WebGLRenderer();
+
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+var domEvents  = new THREEx.DomEvents(camera, renderer.domElement);
 
 Leap.loop(function(frame) {
   frame.hands.forEach(function(hand, index) {
@@ -16,13 +19,29 @@ Leap.loop(function(frame) {
 
 var cubes = [];
 
+
+var pewSound = new THREE.Audio( listener );
+pewSound.load( 'sound/pew.mp3' );
+
+var boomSound = new THREE.Audio( superDuper.listener );
+boomSound.load( 'sound/boom.mp3' );
+
+var goPew = function(mesh) {
+  superDuper.pewSound.play()
+}
+
+var goBoom = function(mesh) {
+  //LAAAAAAAAAAAAME -- Dan
+  if (superDuper.boomSound.isPlaying) {
+    superDuper.boomSound.stop()
+  }
+  superDuper.boomSound.play()
+}
+
 function newCurve(start, end) {
   return new THREE.QuadraticBezierCurve3(
-
-    // new THREE.Vector3( -4.0, -3, 0 ),  //change this start point to the tip of the gun
     start,
     new THREE.Vector3( (Math.random() * 20.0) - 10, Math.random() * 20, -20 ),
-    // new THREE.Vector3( 4.0, -3, -100 ) // change this to the target position
     end
   );
 }
@@ -36,13 +55,28 @@ setInterval(function(){
 
     var material = new THREE.MeshBasicMaterial( { color: color } );
     var cube = new THREE.Mesh( geometry, material );
+
     cube.x = Math.random();
     cube.y = Math.random();
 
-    var startPoint = new THREE.Vector3( (Math.random() * 100) - 50, -3, 0 ); //change this start point to the tip of the gun
+    var startPoint = new THREE.Vector3( (Math.random() * 10) - 5, -3, 0 ); //change this start point to the tip of the gun
     var endPoint = new THREE.Vector3( 4.0, -3, -100 ); // change this to the target position
 
     cube.curve = newCurve(startPoint, endPoint);
+
+    var self = this
+    domEvents.addEventListener(
+      cube,
+      'click',
+      function() {
+        self.goBoom(cube)
+        loc = cubes.indexOf(cube)
+        cubes.splice(loc, 1)
+
+        //THEN REMOVE IT FROM THE SCENE, IDK HOW
+      },
+      false)
+
     cube.curveLocation = 0;
 
     cubes.push(cube);
