@@ -47,42 +47,58 @@ function newCurve(start, end) {
 }
 
 setInterval(function(){
-    var geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+  var cube = Math.random() > 0.5 ? slowCube() : fastCube();
 
-    var color = '#' + (function co(lor){   return (lor +=
+  cubes.push(cube);
+  scene.add( cube.mesh );
+  console.log(cubes.length);
+}, 1000)
+
+
+function Cube() {
+  var self = this;
+
+  var geometry = new THREE.BoxGeometry( 1.2, 1.2, 1.2 );
+  var color = '#' + (function co(lor){   return (lor +=
 [0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'][Math.floor(Math.random()*16)])
 && (lor.length == 6) ?  lor : co(lor); })('');
 
-    var material = new THREE.MeshBasicMaterial( { color: color } );
-    var cube = new THREE.Mesh( geometry, material );
+  var material = new THREE.MeshBasicMaterial( { color: color } );
 
-    cube.x = Math.random();
-    cube.y = Math.random();
+  this.mesh = new THREE.Mesh( geometry, material );
 
-    var startPoint = new THREE.Vector3( (Math.random() * 10) - 5, -3, 0 ); //change this start point to the tip of the gun
-    var endPoint = new THREE.Vector3( 4.0, -3, -100 ); // change this to the target position
+  this.x = Math.random();
+  this.y = Math.random();
 
-    cube.curve = newCurve(startPoint, endPoint);
+  var startPoint = new THREE.Vector3( (Math.random() * 10) - 5, -3, 0 ); //change this start point to the tip of the gun
+  var endPoint = new THREE.Vector3( 4.0, -3, -100 ); // change this to the target position
 
-    var self = this
-    domEvents.addEventListener(
-      cube,
-      'click',
-      function() {
-        self.goBoom(cube)
-        loc = cubes.indexOf(cube)
-        cubes.splice(loc, 1)
+  this.curve = newCurve(startPoint, endPoint);
 
-        //THEN REMOVE IT FROM THE SCENE, IDK HOW
-      },
-      false)
+  domEvents.addEventListener(
+    this.mesh,
+    'click',
+    function() {
+      goBoom(self.mesh)
+      loc = cubes.indexOf(self)
+      self.mesh.material.color = 0;
+      self.velocity = 0.1; //make it go fast and disappear from the scene
+    }, false);
 
-    cube.curveLocation = 0;
+  this.curveLocation = 0;
+}
 
-    cubes.push(cube);
-    scene.add( cube );
-    console.log(cubes.length);
-}, 100)
+function slowCube() {
+  var cube = new Cube();
+  cube.velocity = 0.0005;
+  return cube;
+}
+
+function fastCube() {
+  var cube = new Cube();
+  cube.velocity = 0.01;
+  return cube;
+}
 
 camera.position.z = 5;
 
@@ -92,16 +108,16 @@ var render = function () {
 
   for (var i=0; i < cubes.length; i++){
       var cube = cubes[i];
-      cube.rotation.x += 0.1;
-      cube.rotation.y += 0.1;
-      cube.rotation.z += 0.1;
+      cube.mesh.rotation.x += 0.1;
+      cube.mesh.rotation.y += 0.1;
+      cube.mesh.rotation.z += 0.1;
 
-      cube.curveLocation += 0.001;
+      cube.curveLocation += cube.velocity;
       point = cube.curve.getPoint(cube.curveLocation);
 
-      cube.position.x = point.x
-      cube.position.y = point.y
-      cube.position.z = point.z
+      cube.mesh.position.x = point.x
+      cube.mesh.position.y = point.y
+      cube.mesh.position.z = point.z
   }
   renderer.render(scene, camera);
 };
