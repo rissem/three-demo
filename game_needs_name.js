@@ -6,6 +6,13 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+
+Leap.loop(function(frame) {
+  frame.hands.forEach(function(hand, index) {
+    console.log("hands: ",arguments)
+  });
+});
+
 var cubes = [];
 
 function newCurve() {
